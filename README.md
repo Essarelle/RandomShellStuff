@@ -1,2 +1,2 @@
 # RandomShellStuff
-Random shell scrips
+Random shell scripts
