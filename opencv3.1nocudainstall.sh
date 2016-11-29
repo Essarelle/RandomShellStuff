@@ -1,5 +1,6 @@
 #!/bin/bash
 
+sudo apt-get install -y g++
 wget -O opencv.zip https://github.com/Itseez/opencv/archive/3.1.0.zip
 unzip opencv.zip
 wget -O opencv_contrib.zip https://github.com/Itseez/opencv_contrib/archive/3.1.0.zip
