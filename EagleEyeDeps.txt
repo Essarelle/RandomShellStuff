@@ -1,6 +1,6 @@
 sudo apt-add-repository ppa:graphics-drivers/ppa
 sudo apt update
-sudo apt-get install nvidia-375 nvidia-375-dev
+sudo apt-get install nvidia-375 nvidia-375-dev libcuda1-375 nvidia-opencl-icd-375
 sudo apt update
 sudo apt upgrade
 sudo update-grub
@@ -26,33 +26,48 @@ sudo apt-get install libv4l-0 v4l-utils
 sudo apt-get install libtbb-dev
 sudo apt-get install libusb-1.0-0-dev
 sudo apt-get install mono-complete
-sudo apt-get install default-jdk
+sudo apt-get install default-jdk visualvm libatlas-base-dev gfortran python3.5-dev gem-plugin-dc1394 libdc1394-22 libdc1394-22-dev libdc1394-utils
+sudo apt-get install libavresample-dev libswscale-ffmpeg3 libxine2-ffmpeg libavutil-dev libopenni-dev libopenni-sensor-primesense-dev libxcb-xinerama0-dev libxcb-xinerama0 libdmx1 libxinerama-dev x11proto-xinerama-dev gxine libdvdnav-dev libdvdnav4 libxine2 libxine2-all-plugins libxine2-dev libxine2-ffmpeg mimms libopenni2-0 libopenni2-dev openni-utils openni2-utils primesense-nite-nonfree  
 sudo apt-get install libboost-filesystem1.58.0 libboost-iostreams1.58.0 libboost-program-options1.58-dev libboost-program-options1.58.0 libboost-random1.58.0 libboost-regex1.58.0 libboost-system1.58.0 libboost-thread1.58.0 libboost1.58-dbg libboost1.58-dev libboost1.58-tools-dev libboost-atomic1.58-dev libboost-atomic1.58.0 libboost-chrono1.58-dev libboost-chrono1.58.0 libboost-context1.58-dev libboost-context1.58.0 libboost-coroutine1.58-dev libboost-coroutine1.58.0 libboost-date-time1.58-dev libboost-exception1.58-dev libboost-filesystem1.58-dev libboost-geometry-utils-perl libboost-graph-parallel1.58-dev libboost-graph-parallel1.58.0 libboost-graph1.58-dev libboost-graph1.58.0 libboost-iostreams1.58-dev libboost-log1.58-dev libboost-log1.58.0 libboost-math1.58-dev libboost-math1.58.0 libboost-python1.58-dev libboost-python1.58.0 libboost-random1.58-dev libboost-regex1.58-dev libboost-serialization1.58-dev libboost-serialization1.58.0 libboost-signals1.58.0 libboost-signals1.58-dev libboost-system1.58-dev libboost-thread1.58-dev libboost-timer1.58-dev libboost-timer1.58.0 libboost1.58-all-dev
+sudo apt-get install python3-libnacl libsodium-dev libgphoto2-dev libavcodec-extra libneon27 libneon27-dev libopenexr-dev
+sudo apt-get install libjhdf5-java libjhdf5-jni libhdf5-cpp-11 libhdf5-dev hdf5-tools h5utils hdf5-helpers
+sudo apt-get install libitpp-dev libfann-dev libfann-doc libgeotiff-epsg  python-genshi gpsd libdlna-dev python-appdirs python-mako python-markupsafe python-pytools python3-appdirs python3-pytools
+wget https://bootstrap.pypa.io/get-pip.py
+sudo python3 get-pip.py
+sudo pip3 virtualenv virtualenvwrapper
 wget https://developer.nvidia.com/compute/cuda/8.0/prod/local_installers/cuda_8.0.44_linux-run
 sudo sh cuda_8.0.44_linux.run
-git clone https://github.com/OpenNI/OpenNI.git
-cd OpenNI/Platform/Linux/CreateRedist
-./RedistMaker
-cd $HOME/OpenNI/Platform/Linux/Redist/OpenNI-Bin-Dev-Linux-x64-v1.5.7.10
-sudo ./install.sh
-cd ~ 
-wget http://wayland.freedesktop.org/releases/wayland-1.12.0.tar.xz
-tar -xvf wayland-1.12.0.tar.xz
-cd wayland-1.12.0
-./configure --disable-static --disable-documentation
-make
-sudo make install
-cd ~
+
 wget https://github.com/cisco/openh264/archive/v1.5.0.tar.gz
 tar -xvzf v1.5.0.tar.gz
 cd openh264-1.5.0
 make -j4
 sudo make install
 cd ~
+
+git clone http://github.com/kitware/vtk
+cd vtk
+mkdir build
+cd build
+cmake -DVTK_Group_Qt=ON -DVTK_QT_VERSION=5 -DCMAKE_DEBUG_POSTFIX=d -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_FLAGS_RELEASE="-fno-omit-frame-pointer -O3 -DNDEBUG -g" ..
+make -j4
+sudo make install
+
 wget -O opencv.zip https://github.com/Itseez/opencv/archive/3.1.0.zip
 unzip opencv.zip
 wget -O opencv_contrib.zip https://github.com/Itseez/opencv_contrib/archive/3.1.0.zip
 unzip opencv_contrib.zip
 cd opencv-3.1.0/
 mkdir build
-cd build       
+cd build
+export xfeatures2d={/path/to/opencv_contrib/modules/ }
+{in ~/opencv-3.1.0/modules/cudalegacy/src/graphcuts.cpp add || (CUDART_VERSION >= 8000) to the first line below includes}
+{in ~/opencv-3.1.0/modules/python/common.cmake append: 
+find_package(HDF5)
+include_directories(${HDF5_INCLUDE_DIRS})
+to bottom}
+{change vtkRenderingOpenGL to vtkRenderingOpenGL2 in cmake/OpenCVDetectVTK.cmake}
+
+cmake -DCMAKE_BUILD_TYPE=RELEASE -DCMAKE_INSTALL_PREFIX=/usr/local -DWITH_CUDA=ON -DENABLE_FAST_MATH=1 -DCUDA_FAST_MATH=1 -DWITH_CUBLAS=1 -DINSTALL_PYTHON_EXAMPLES=ON -DBUILD_EXAMPLES=ON -DOPENCV_EXTRA_MODULES_PATH=$HOME/opencv_contrib-3.1.0/modules -DBUILD_NEW_PYTHON_SUPPORT=ON -DWITH_TBB=ON -DWITH_V4L=ON -DWITH_QT=ON -DWITH_OPENGL=ON -DWITH_VTK=ON -DWITH_OPENNI2=ON -DWITH_XINE=ON -DWITH_GDAL=ON -DWITH_GPHOTO2=ON .. 
+make -j8
+sudo make install         
